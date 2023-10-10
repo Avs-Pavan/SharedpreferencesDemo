@@ -24,20 +24,50 @@ class HomeScreen : AppCompatActivity() {
         preferences.edit()
     }
 
+
+    // This is the EncryptedSharedPreferences object that we will use to store the user's credentials
+    private lateinit var secureSharedPreferences: SharedPreferences
+    private lateinit var secureEditor: SharedPreferences.Editor
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        initSharedPreferences()
+
+        initViews()
+
+    }
+
+    private fun initViews() {
         // This is the logout button
         binding.logout.setOnClickListener {
 
             // Set the is_logged_in value to false
             editor.clear().apply()
 
+            // Set the username and password values to null
+            secureEditor.clear().apply()
+
             // Redirect the user to the LoginScreen
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
         }
+
+        // Get the username from the SharedPreferences and display it in the TextView
+        val name = secureSharedPreferences.getString("username", null)
+
+        // Set the text of the TextView to "Welcome $name"
+        binding.name.text = "Welcome $name"
+
     }
+
+    private fun initSharedPreferences() {
+        secureSharedPreferences = SecureSharedPrefs.getSharedPreferences(this)
+        secureEditor = secureSharedPreferences.edit()
+    }
+
+
 }

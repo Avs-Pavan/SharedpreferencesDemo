@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.security.crypto.EncryptedSharedPreferences
 import com.kevin.sharedpreferencesdemo.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
@@ -19,6 +20,10 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
+    // EncryptedSharedPreferences for storing data locally on the device
+    private lateinit var secureSharedPreferences: SharedPreferences
+    private lateinit var secureEditor: SharedPreferences.Editor
+
     // SharedPreferences.Editor for editing the SharedPreferences
     private val editor: SharedPreferences.Editor by lazy {
         preferences.edit()
@@ -29,8 +34,14 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        initSharedPreferences()
 
         initViews()
+    }
+
+    private fun initSharedPreferences() {
+        secureSharedPreferences = SecureSharedPrefs.getSharedPreferences(this)
+        secureEditor = secureSharedPreferences.edit()
     }
 
     // Function to initialize the views
@@ -46,10 +57,15 @@ class LoginActivity : AppCompatActivity() {
             // Check if the username and password are not blank
             if (username.isNotBlank() && password.isNotBlank()) {
 
-                // Store the username and password in the SharedPreferences
+                // Store the logged in state in the SharedPreferences
                 editor.putBoolean("is_logged_in", true)
-                editor.putString("username", username)
-                editor.putString("password", password)
+
+                // Store the username and password in the encrypted SharedPreferences
+                secureEditor.putString("username", username)
+                secureEditor.putString("password", password)
+
+                // Apply the changes
+                secureEditor.apply()
 
                 // Apply the changes
                 editor.apply()
